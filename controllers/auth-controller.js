@@ -9,28 +9,6 @@ const home = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const userExist = await User.findOne({ email: email });
-    if (!userExist) {
-      return res.status(201).json({ message: "User is not register" });
-    }
-
-    const user = await bcrypt.compare( password, userExist.password );
-
-    if (user) {
-      req.status(201).json({
-        message: "Login Success",
-        token: await userExist.generateToken(),
-        userId: userExist._id.toString(),
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Internal Error" });
-  }
-};
-
 const register = async (req, res) => {
   try {
     const { username, email, phone, password } = req.body;
@@ -55,6 +33,30 @@ const register = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Internal Error" });
     console.error(error);
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userExist = await User.findOne({ email: email });
+    if (!userExist) {
+      return res.status(400).json({ message: "User is not register" });
+    }
+
+    const user = await userExist.comparePassword(password);
+
+    if (user) {
+      res.status(201).json({
+        message: "Login Success",
+        token: await userExist.generateToken(),
+        userId: userExist._id.toString(),
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email and password" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Internal Error" });
   }
 };
 
