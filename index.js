@@ -2,8 +2,18 @@ const express = require("express");
 const app = express();
 const mainRouter = require("./routers/main-router");
 const connectDb = require("./utils/db-connect");
+const cors = require("cors");
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
+  })
+);
 
 app.use("/api", mainRouter);
 
